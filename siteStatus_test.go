@@ -36,14 +36,13 @@ func TestCheckStatus(t *testing.T) {
 		lines := strings.Split(string(content), "\n")
 
 		if len(lines) != test.expected {
-			t.Error("TEST FAILED: " + fmt.Sprint(test.expected) + " expected, but recieved " + fmt.Sprint(len(lines)))
+			t.Error("TEST FAILED: " + fmt.Sprint(test.expected) + " expected, but received " + fmt.Sprint(len(lines)))
 		}
 	}
 }
 
 func BenchmarkCheckStatus4(b *testing.B) {
 	for n := 0; n < b.N; n++ {
-		println(n)
 		checkStatus([]string{"https://facebook.com", "https://cnn.com"})
 	}
 }
