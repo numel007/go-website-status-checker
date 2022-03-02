@@ -1,4 +1,4 @@
-module websiteStatus
+module github.com/numel007/go-website-status-checker
 
 go 1.17
 
