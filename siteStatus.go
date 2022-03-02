@@ -13,6 +13,10 @@ import (
 	"github.com/fatih/color"
 )
 
+func calculate(num1 int, num2 int) int {
+	return (num1 * num2)
+}
+
 func printStatus(url string, statusCode int, statusText string) {
 	red := color.New(color.FgRed).SprintFunc()
 	green := color.New(color.FgGreen).SprintFunc()
@@ -41,42 +45,45 @@ func writeStatus(url string, statusCode int, statusText string) {
 	logger.Println("GET " + url + " " + fmt.Sprint(statusCode) + " " + statusText)
 }
 
-func main() {
-
+func checkStatus(urls []string) {
 	var wg sync.WaitGroup
 
+	// Temporarily removed infinite loop for testing
+	// for {
+	wg.Add(len(urls))
+
+	for i := 0; i < len(urls); i++ {
+		go func(url string) {
+			defer wg.Done()
+			client := http.Client{Timeout: 5 * time.Second}
+			resp, err := client.Get(url)
+
+			if err != nil {
+				writeStatus(url, 408, http.StatusText(408))
+				printStatus(url, 408, http.StatusText(408))
+			} else {
+				if resp.StatusCode == 200 {
+					writeStatus(url, 200, http.StatusText(200))
+					printStatus(url, 200, http.StatusText(200))
+				} else {
+					writeStatus(url, resp.StatusCode, http.StatusText(resp.StatusCode))
+					printStatus(url, resp.StatusCode, http.StatusText(resp.StatusCode))
+				}
+			}
+		}(urls[i])
+	}
+
+	wg.Wait()
+	// time.Sleep(1 * time.Minute)
+	// }
+}
+
+func main() {
 	content, err := ioutil.ReadFile("websites.txt")
 	if err != nil {
 		panic(err)
 	}
 
 	websites := strings.Split(string(content), "\n")
-
-	for {
-		wg.Add(len(websites))
-
-		for i := 0; i < len(websites); i++ {
-			go func(url string) {
-				defer wg.Done()
-				client := http.Client{Timeout: 5 * time.Second}
-				resp, err := client.Get(url)
-
-				if err != nil {
-					writeStatus(url, 408, http.StatusText(408))
-					printStatus(url, 408, http.StatusText(408))
-				} else {
-					if resp.StatusCode == 200 {
-						writeStatus(url, 200, http.StatusText(200))
-						printStatus(url, 200, http.StatusText(200))
-					} else {
-						writeStatus(url, resp.StatusCode, http.StatusText(resp.StatusCode))
-						printStatus(url, resp.StatusCode, http.StatusText(resp.StatusCode))
-					}
-				}
-			}(websites[i])
-		}
-
-		wg.Wait()
-		time.Sleep(1 * time.Minute)
-	}
+	checkStatus(websites)
 }
