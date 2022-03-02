@@ -13,10 +13,6 @@ import (
 	"github.com/fatih/color"
 )
 
-func calculate(num1 int, num2 int) int {
-	return (num1 * num2)
-}
-
 func printStatus(url string, statusCode int, statusText string) {
 	red := color.New(color.FgRed).SprintFunc()
 	green := color.New(color.FgGreen).SprintFunc()
