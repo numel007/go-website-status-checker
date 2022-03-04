@@ -45,33 +45,33 @@ func checkStatus(urls []string) {
 	var wg sync.WaitGroup
 
 	// Temporarily removed infinite loop for testing
-	// for {
-	wg.Add(len(urls))
+	for {
+		wg.Add(len(urls))
 
-	for i := 0; i < len(urls); i++ {
-		go func(url string) {
-			defer wg.Done()
-			client := http.Client{Timeout: 5 * time.Second}
-			resp, err := client.Get(url)
+		for i := 0; i < len(urls); i++ {
+			go func(url string) {
+				defer wg.Done()
+				client := http.Client{Timeout: 5 * time.Second}
+				resp, err := client.Get(url)
 
-			if err != nil {
-				writeStatus(url, 408, http.StatusText(408))
-				printStatus(url, 408, http.StatusText(408))
-			} else {
-				if resp.StatusCode == 200 {
-					writeStatus(url, 200, http.StatusText(200))
-					printStatus(url, 200, http.StatusText(200))
+				if err != nil {
+					writeStatus(url, 408, http.StatusText(408))
+					printStatus(url, 408, http.StatusText(408))
 				} else {
-					writeStatus(url, resp.StatusCode, http.StatusText(resp.StatusCode))
-					printStatus(url, resp.StatusCode, http.StatusText(resp.StatusCode))
+					if resp.StatusCode == 200 {
+						writeStatus(url, 200, http.StatusText(200))
+						printStatus(url, 200, http.StatusText(200))
+					} else {
+						writeStatus(url, resp.StatusCode, http.StatusText(resp.StatusCode))
+						printStatus(url, resp.StatusCode, http.StatusText(resp.StatusCode))
+					}
 				}
-			}
-		}(urls[i])
-	}
+			}(urls[i])
+		}
 
-	wg.Wait()
-	// time.Sleep(1 * time.Minute)
-	// }
+		wg.Wait()
+		time.Sleep(10 * time.Second)
+	}
 }
 
 func main() {
